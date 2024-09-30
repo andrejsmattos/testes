@@ -4,7 +4,7 @@ import br.com.exemplo.aula.services.NutricionistaService;
 import br.com.exemplo.aula.controllers.dto.NutricionistaRequestDTO;
 import br.com.exemplo.aula.controllers.dto.NutricionistaResponseDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class NutricionistaController {
         this.nutricionistaService = nutricionistaService;
     }
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN','SCOPE_NUTRI')")
+//    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN','SCOPE_NUTRI')")
 //    @PreAuthorize("hasAuthority('SCOPE_NUTRI')")
     @PostMapping()
     public NutricionistaResponseDTO salvarNutricionista(@RequestBody NutricionistaRequestDTO request) {
@@ -29,7 +29,7 @@ public class NutricionistaController {
 
     @GetMapping()
     public List<NutricionistaResponseDTO> listarnutricionistas(
-            @RequestHeader(name="Authorization")
+//            @RequestHeader(name="Authorization")
             String token
              // bearer shadkjasdasjhk
     ) {
