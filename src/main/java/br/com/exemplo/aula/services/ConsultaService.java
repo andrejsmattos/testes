@@ -74,4 +74,26 @@ public class ConsultaService {
     }
 
 
+    public ConsultaResponseDTO atualizarConsulta(Long id, ConsultaRequestDTO request) {
+        Consulta consulta = consultaRepository.findById(id).orElse(null);
+        Consulta consultaAtualizada = mapearRequest(request);
+        assert consulta != null;
+        consulta.setData(consultaAtualizada.getData());
+        consulta.setNutricionista(consultaAtualizada.getNutricionista());
+        consulta.setPaciente(consultaAtualizada.getPaciente());
+        consulta.setObservacoes(consultaAtualizada.getObservacoes());
+        consultaRepository.save(consulta);
+
+        return new ConsultaResponseDTO(
+                consulta.getId(),
+                consulta.getNutricionista(),
+                consulta.getPaciente(),
+                consulta.getData(),
+                consulta.getObservacoes()
+        );
+    }
+
+    public void deletarConsulta(Long id) {
+        consultaRepository.deleteById(id);
+    }
 }
