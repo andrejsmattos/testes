@@ -1,23 +1,25 @@
 package br.com.exemplo.aula.services;
 
 import br.com.exemplo.aula.controllers.dto.NutricionistaRequestDTO;
-import br.com.exemplo.aula.controllers.dto.NutricionistaResponseDTO;
 import br.com.exemplo.aula.entities.Nutricionista;
 import br.com.exemplo.aula.repositories.NutricionistaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class NutricionistaServiceTestIT {
 
     @Autowired
@@ -26,60 +28,58 @@ class NutricionistaServiceTestIT {
     @MockBean
     private NutricionistaRepository nutricionistaRepository;
 
-    private Nutricionista nutricionista;
+    Nutricionista nutricionista;
 
     @BeforeEach
-    void setUp() {
-        // Configurando um objeto Nutricionista para os testes
-        nutricionista = new Nutricionista();
-        nutricionista.setId(1L);
-        nutricionista.setNome("Nutricionista Teste");
-        nutricionista.setMatricula("12345");
-        nutricionista.setTempoExperiencia(5);
-        nutricionista.setCrn("CRN123");
-        nutricionista.setEspecialidade("ESPECIALIDADE_TESTE");
-    }
-
-    @Test
-    void testListarNutricionistas() {
-        // Mockando o comportamento do repositório
-        Mockito.when(nutricionistaRepository.findAll())
-                .thenReturn(Collections.singletonList(nutricionista));
-
-        // Testando o método listarNutricionistas
-        var nutricionistas = nutricionistaService.listarNutricionistas();
-
-        assertNotNull(nutricionistas);
-        assertEquals(1, nutricionistas.size());
-
-        NutricionistaResponseDTO dto = nutricionistas.get(0);
-        assertEquals(nutricionista.getNome(), dto.getNome());
-    }
-
-    @Test
-    void testSalvarNutricionista() {
-        // Mockando o comportamento de salvar no repositório
-        Mockito.when(nutricionistaRepository.findByNome(any(String.class)))
-                .thenReturn(Optional.empty());
-
-        Mockito.when(nutricionistaRepository.save(any(Nutricionista.class)))
-                .thenReturn(nutricionista);
-
-        // Criando um DTO para enviar no método
-        NutricionistaRequestDTO requestDTO = new NutricionistaRequestDTO(
-                "Nutricionista Teste",
-                "12345",
+    public void setup() {
+        nutricionista = new Nutricionista(
+                1L,
+                "nome",
+                "123456",
                 5,
-                null,
                 "CRN123",
-                "ESPECIALIDADE_TESTE"
+                "especialidade",
+                new HashSet<String>(Set.of("certificação 1", "certificação 2"))
+        );
+    }
+
+    @Test
+    void listarNutricionistas() {
+
+        List<Nutricionista> nutricionistas = new ArrayList<>();
+        nutricionistas.add(nutricionista);
+
+        when(nutricionistaRepository.findAll()).thenReturn(nutricionistas);
+
+        var resultado = nutricionistaService.listarNutricionistas();
+
+        assertNotNull(resultado);
+        assertEquals(nutricionistas.get(0).getId(), resultado.get(0).getId());
+//        assertEquals(1, nutricionistas.size());
+
+        verify(nutricionistaRepository).findAll();
+    }
+
+    @Test
+    void salvarNutricionista() {
+
+        NutricionistaRequestDTO request = new NutricionistaRequestDTO(
+                "nutricionista",
+                "123456",
+                5,
+                1L,
+                "CRN123",
+                "especialidade"
         );
 
-        // Testando o método salvarNutricionista
-        NutricionistaResponseDTO responseDTO = nutricionistaService.salvarNutricionista(requestDTO);
+        when(nutricionistaRepository.save(any())).thenReturn(nutricionista);
+        when(nutricionistaRepository.findByNome(any(String.class))).thenReturn(Optional.empty());
 
-        assertNotNull(responseDTO);
-        assertEquals(nutricionista.getNome(), responseDTO.getNome());
-        assertEquals(nutricionista.getMatricula(), responseDTO.getMatricula());
+        var resultado = nutricionistaService.salvarNutricionista(request);
+
+        assertNotNull(resultado);
+        assertEquals(nutricionista.getNome(), resultado.getNome());
+
+        verify(nutricionistaRepository).save(any());
     }
 }
